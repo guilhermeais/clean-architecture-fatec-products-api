@@ -14,8 +14,8 @@ export class Product {
     return new Product(props)
   }
 
-  get id() {
-    return this.props.id
+  get id(): string {
+    return this.props.id as string
   }
 
   get ean() {
