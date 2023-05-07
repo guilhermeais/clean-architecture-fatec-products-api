@@ -1,6 +1,6 @@
 import { randomUUID } from 'crypto'
 import { Category } from './category.entity'
-import { Attribute, AttributeProps } from './value-objects/attributes'
+import { Attribute } from './value-objects/attributes'
 
 export class Product {
   private props: ProductProps
@@ -27,7 +27,7 @@ export class Product {
 
   get ean() {
     return this.props.ean
-  }  
+  }
 
   get title() {
     return this.props.title
