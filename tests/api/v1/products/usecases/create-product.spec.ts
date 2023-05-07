@@ -1,15 +1,15 @@
 import { beforeEach, describe, expect, test, vitest } from 'vitest'
 import { mock, MockProxy } from 'vitest-mock-extended'
 import { CreateProduct } from '../../../../../src/api/v1/products/domain/usecases/create-product'
-import { ProductRepository } from '../../../../../src/api/v1/products/domain/protocols/repositories/product.repository'
+import { CreateProductRepository } from '../../../../../src/api/v1/products/domain/protocols/repositories/product-repository'
 import { mockProduct } from '../domain/entities/product.entity.mock'
 
 describe('CreateProduct', () => {
   let sut: CreateProduct
-  let productRepository: MockProxy<ProductRepository>
+  let productRepository: MockProxy<CreateProductRepository>
 
   beforeEach(async () => {
-    productRepository = mock<ProductRepository>({
+    productRepository = mock<CreateProductRepository>({
       create: vitest.fn().mockResolvedValue(mockProduct()),
     })
     sut = new CreateProduct(productRepository)

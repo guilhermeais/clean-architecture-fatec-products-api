@@ -1,16 +1,16 @@
 import { beforeEach, describe, expect, test, vitest } from 'vitest'
 import { MockProxy, mock } from 'vitest-mock-extended'
-import { ProductRepository } from '../../../../../src/api/v1/products/domain/protocols/repositories/product.repository'
+import { FindProductByIdRepository } from '../../../../../src/api/v1/products/domain/protocols/repositories/product-repository'
 import { mockProduct } from '../domain/entities/product.entity.mock'
 import { GetProductById } from '../../../../../src/api/v1/products/domain/usecases/get-product-by-id'
 import { EntityNotFoundError } from '../../../../../src/api/v1/shared/errors'
 
 describe('GetProductById', () => {
-  let productRepository: MockProxy<ProductRepository>
+  let productRepository: MockProxy<FindProductByIdRepository>
   let sut: GetProductById
 
   beforeEach(async () => {
-    productRepository = mock<ProductRepository>({
+    productRepository = mock<FindProductByIdRepository>({
       findById: vitest.fn().mockResolvedValue(mockProduct()),
     })
 
