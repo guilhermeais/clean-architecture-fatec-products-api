@@ -1,4 +1,4 @@
-import db from "./pg-connection";
+import db from './pg-connection'
 
 export const migrateTables = async () => {
   await db.query(`
@@ -28,4 +28,29 @@ export const dropTables = async () => {
   await db.query('DROP TABLE products_categories')
   await db.query('DROP TABLE products')
   await db.query('DROP TABLE categories')
+}
+
+if (process.argv.indexOf('up') > -1) {
+  console.info('Migrating tables...')
+  migrateTables()
+    .then(() => {
+      console.info('Tables migrated!')
+      process.exit(0)
+    })
+    .catch(error => {
+      console.error('Error migrating tables', error)
+      process.exit(1)
+    })
+}
+if (process.argv.indexOf('down') > -1) {
+  console.info('Dropping tables...')
+  dropTables()
+    .then(() => {
+      console.info('Tables dropped!')
+      process.exit(0)
+    })
+    .catch(error => {
+      console.error('Error dropping tables', error)
+      process.exit(1)
+    })
 }
