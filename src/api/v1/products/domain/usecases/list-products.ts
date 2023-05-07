@@ -1,5 +1,4 @@
 import { Product } from '../entities/product.entity'
-import {} from '../protocols/repositories/product-repository'
 import { ListProductsRepository } from '../protocols/repositories/product-repository/list-products'
 
 export class ListProducts {
