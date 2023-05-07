@@ -9,7 +9,12 @@ export class Product {
     props.id = props.id || randomUUID()
     props.attributes = props.attributes || []
     props.categories = props.categories || []
+    props.costValue = props.costValue || 0
+    props.sellValue = props.sellValue || 0
     this.props = props
+
+    Object.assign(this.props, props)
+    Object.freeze(this)
   }
 
   static create(props: ProductProps): Product {

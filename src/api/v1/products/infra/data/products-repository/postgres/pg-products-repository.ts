@@ -60,7 +60,7 @@ export class PgProductsRepository
       }
     }
 
-    return Product.create(product)
+    return this.findById(id)
   }
 
   async findById(id: string): Promise<FindProductByIdRepository.Result> {
