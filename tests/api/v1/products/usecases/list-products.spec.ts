@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, test, vitest } from 'vitest'
 import { ListProducts } from '../../../../../src/api/v1/products/domain/usecases/list-products'
-import { ListProductsRepository } from '../../../../../src/api/v1/products/domain/protocols/repositories/product-repository/list-products'
+import { ListProductsRepository } from '../../../../../src/api/v1/products/domain/protocols/repositories/product-repository/list-products.repository'
 import { MockProxy, mock } from 'vitest-mock-extended'
 import { mockProduct } from '../domain/entities/product.entity.mock'
 import { faker } from '@faker-js/faker'
