@@ -1,6 +1,6 @@
 import { randomUUID } from 'crypto'
 import { Category } from './category.entity'
-import { Attribute } from './value-objects/attributes'
+import { Attribute, AttributeProps } from './value-objects/attributes'
 
 export class Product {
   private props: ProductProps
@@ -9,8 +9,8 @@ export class Product {
     props.id = props.id || randomUUID()
     props.attributes = props.attributes || []
     props.categories = props.categories || []
-    props.costValue = props.costValue || 0
-    props.sellValue = props.sellValue || 0
+    props.costValue = parseFloat((props.costValue || 0).toString())
+    props.sellValue = parseFloat((props.sellValue || 0).toString())
     this.props = props
 
     Object.assign(this.props, props)
@@ -53,7 +53,7 @@ export class Product {
     return this.props.sellValue
   }
 
-  toModel(): ProductProps {
+  toModel() {
     return { ...this.props }
   }
 }

@@ -1,4 +1,4 @@
-import * as pgPromises from 'pg-promise'
+import  pgPromises from 'pg-promise'
 import { env } from '../../../../../../../../config/env'
 
 const pgp = pgPromises()

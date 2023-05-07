@@ -17,7 +17,7 @@ export class Attribute {
     return this.props.label
   }
 
-  toModel() {
+  toModel(): AttributeProps {
     return {
       ...this.props,
     }

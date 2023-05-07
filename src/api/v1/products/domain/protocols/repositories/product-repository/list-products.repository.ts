@@ -1,4 +1,5 @@
 import { Product } from '../../../entities/product.entity'
+import { Attribute, } from '../../../entities/value-objects/attributes'
 
 export interface ListProductsRepository {
   list(
@@ -10,10 +11,7 @@ export namespace ListProductsRepository {
   export type Params = {
     title?: string
     brand?: string
-    attribute?: {
-      type: string
-      value: string
-    }
+    attribute?: Partial<Attribute>
   }
   export type Result = Product[]
 }

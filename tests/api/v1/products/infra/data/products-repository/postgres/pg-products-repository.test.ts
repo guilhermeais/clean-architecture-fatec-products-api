@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'vitest'
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, test } from 'vitest'
 import { PgProductsRepository } from '../../../../../../../../src/api/v1/products/infra/data/products-repository/postgres/pg-products-repository'
 import db from '../../../../../../../../src/api/v1/products/infra/data/products-repository/postgres/helpers/pg-connection'
 import {
@@ -10,19 +10,18 @@ import { mockCategory } from '../../../../domain/entities/category.entity.mock'
 import { Category } from '../../../../../../../../src/api/v1/products/domain/entities/category.entity'
 import { faker } from '@faker-js/faker'
 import { Product } from '../../../../../../../../src/api/v1/products/domain/entities/product.entity'
+import { Attribute } from 'src/api/v1/products/domain/entities/value-objects/attributes'
 
 describe('PgProductsRepository integration', () => {
   let sut: PgProductsRepository
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     await migrateTables()
-  })
 
-  beforeEach(() => {
     sut = new PgProductsRepository()
   })
 
-  afterAll(async () => {
+  afterEach(async () => {
     await dropTables()
   })
 
@@ -45,12 +44,11 @@ describe('PgProductsRepository integration', () => {
       ...mockProduct().toModel(),
       ...(product || {}),
     }
-
     await db.query(
       'INSERT INTO products (id, attributes, brand, cost_value, ean, sell_value, title) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
       [
         mockedProduct.id,
-        JSON.stringify(mockedProduct.attributes),
+        JSON.stringify(mockedProduct.attributes.map(attribute => attribute.toModel())),
         mockedProduct.brand,
         mockedProduct.costValue,
         mockedProduct.ean,
@@ -83,8 +81,8 @@ describe('PgProductsRepository integration', () => {
       expect(product.brand).toBe(mockedProduct.brand)
       expect(product.ean).toBe(mockedProduct.ean)
       expect(product.title).toBe(mockedProduct.title)
-      expect(product.sell_value).toBe(mockedProduct.sellValue)
-      expect(product.cost_value).toBe(mockedProduct.costValue)
+      expect(parseFloat(product.sell_value)).toBe(mockedProduct.sellValue)
+      expect(parseFloat(product.cost_value)).toBe(mockedProduct.costValue)
       expect(product.attributes).toEqual(mockedProduct.attributes)
     })
 
@@ -116,7 +114,14 @@ describe('PgProductsRepository integration', () => {
 
       const product = await sut.findById(mockedProduct.id)
 
-      expect(product?.toModel()).toEqual(mockedProduct.toModel())
+      expect(product.id).toBe(mockedProduct.id)
+      expect(product.brand).toBe(mockedProduct.brand)
+      expect(product.ean).toBe(mockedProduct.ean)
+      expect(product.title).toBe(mockedProduct.title)
+      expect(product.sellValue).toBe(mockedProduct.sellValue)
+      expect(product.costValue).toBe(mockedProduct.costValue)
+      expect(product.attributes).toEqual(mockedProduct.attributes)
+      expect(product.categories).toEqual([])
     })
 
     test('should return a existing product with categories by id', async () => {
@@ -124,11 +129,14 @@ describe('PgProductsRepository integration', () => {
       const mockedProduct = await makeDBProduct([mockedCategory])
 
       const product = await sut.findById(mockedProduct.id)
-
-      expect(product?.toModel()).toEqual({
-        ...mockedProduct.toModel(),
-        categories: [mockedCategory],
-      })
+      expect(product.id).toBe(mockedProduct.id)
+      expect(product.brand).toBe(mockedProduct.brand)
+      expect(product.ean).toBe(mockedProduct.ean)
+      expect(product.title).toBe(mockedProduct.title)
+      expect(product.sellValue).toBe(mockedProduct.sellValue)
+      expect(product.costValue).toBe(mockedProduct.costValue)
+      expect(product.attributes).toEqual(mockedProduct.attributes)
+      expect(product.categories).toEqual([mockedCategory])
     })
 
     test('should return null if product does not exists', async () => {
@@ -148,7 +156,39 @@ describe('PgProductsRepository integration', () => {
         brand: expectedProduct.brand,
       })
 
-      expect(products).toEqual([expectedProduct])
+      expect(products.length).toEqual(1)
+
+      expect(products[0].id).toBe(expectedProduct.id)
+      expect(products[0].brand).toBe(expectedProduct.brand)
+      expect(products[0].ean).toBe(expectedProduct.ean)
+      expect(products[0].title).toBe(expectedProduct.title)
+      expect(products[0].sellValue).toBe(expectedProduct.sellValue)
+      expect(products[0].costValue).toBe(expectedProduct.costValue)
+      expect(products[0].attributes).toEqual(expectedProduct.attributes)
+      expect(products[0].categories).toEqual([])
+    })
+
+    test('should return a list of products according to the filters', async () => {
+      const expectedProduct = await makeDBProduct()
+      await makeDBProduct()
+
+      const products = await sut.list({
+        attribute: new Attribute({
+          label: expectedProduct.attributes[0].label,
+          value: expectedProduct.attributes[0].value,
+          type: expectedProduct.attributes[0].type,
+        }),
+      })
+
+      expect(products.length).toEqual(1)
+
+      expect(products[0].id).toBe(expectedProduct.id)
+      expect(products[0].brand).toBe(expectedProduct.brand)
+      expect(products[0].ean).toBe(expectedProduct.ean)
+      expect(products[0].title).toBe(expectedProduct.title)
+      expect(products[0].sellValue).toBe(expectedProduct.sellValue)
+      expect(products[0].costValue).toBe(expectedProduct.costValue)
+      expect(products[0].attributes).toEqual(expectedProduct.attributes)
     })
 
     test('should return a list of products with categories', async () => {
@@ -162,10 +202,17 @@ describe('PgProductsRepository integration', () => {
       })
 
       expect(products.length).toEqual(1)
-      expect(products[0].toModel()).toEqual({
-        ...expectedProduct.toModel(),
-        categories: [mockedCategory],
-      })
+
+      expect(products[0].id).toBe(expectedProduct.id)
+      expect(products[0].brand).toBe(expectedProduct.brand)
+      expect(products[0].ean).toBe(expectedProduct.ean)
+      expect(products[0].title).toBe(expectedProduct.title)
+      expect(products[0].sellValue).toBe(expectedProduct.sellValue)
+      expect(products[0].costValue).toBe(expectedProduct.costValue)
+      expect(products[0].attributes).toEqual(expectedProduct.attributes)
+      expect(products[0].categories).toEqual([
+        mockedCategory
+      ])
     })
   })
 })

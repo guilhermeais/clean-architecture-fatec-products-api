@@ -1,7 +1,8 @@
+import { Attribute } from '../../../../domain/entities/value-objects/attributes'
 import { Category } from '../../../../domain/entities/category.entity'
 import {
-  ProductProps,
   Product,
+  ProductProps,
 } from '../../../../domain/entities/product.entity'
 import {
   ListProductsRepository,
@@ -19,7 +20,9 @@ export class PgProductsRepository
   static toDomain(dbProduct, dbCategories): Product {
     return Product.create({
       id: dbProduct.id,
-      attributes: dbProduct.attributes,
+      attributes: dbProduct.attributes
+        ? dbProduct.attributes.map(a => new Attribute(a))
+        : [],
       brand: dbProduct.brand,
       ean: dbProduct.ean,
       title: dbProduct.title,
@@ -80,24 +83,33 @@ export class PgProductsRepository
     filters: ListProductsRepository.Params
   ): Promise<ListProductsRepository.Result> {
     const { attribute, brand, title } = filters
+    const values = []
+
     let where = '1=1\n'
     let index = 1
 
-    if (attribute?.type && attribute?.value) {
-      where += `and attributes->>'${attribute.type}' = $${index++}\n`
+    if (attribute) {
+      for (const [key, value] of Object.entries(attribute.toModel())) {
+        if (value) {
+          where += `and att ->>'${key}' = $${index++}\n`
+          values.push(value)
+        }
+      }
     }
 
     if (brand) {
       where += `and brand = $${index++}\n`
+      values.push(brand)
     }
 
     if (title) {
       where += `and title like $${index++}\n`
+      values.push(`%${title}%`)
     }
 
     const products = await db.query(
-      `SELECT * FROM products WHERE ${where}`,
-      [attribute, brand, title].filter(Boolean)
+      `SELECT *  FROM products, jsonb_array_elements(products.attributes) att WHERE ${where}`,
+      values
     )
 
     const parsedProduct: Product[] = []

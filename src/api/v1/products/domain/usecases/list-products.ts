@@ -1,4 +1,5 @@
 import { Product } from '../entities/product.entity'
+import { Attribute } from '../entities/value-objects/attributes'
 import { ListProductsRepository } from '../protocols/repositories/product-repository/list-products.repository'
 
 export class ListProducts {
@@ -15,9 +16,6 @@ export namespace ListProducts {
   export type Params = {
     title?: string
     brand?: string
-    attribute?: {
-      type: string
-      value: string
-    }
+    attribute?:Attribute
   }
 }

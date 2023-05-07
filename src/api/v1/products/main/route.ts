@@ -7,6 +7,8 @@ import { makeGetProductById } from './get-product-by-id.factory'
 import { makeListProducts } from './list-products.factory'
 import { Product } from '../domain/entities/product.entity'
 import { ProductViewModel } from './view-models/product-view-model'
+import { ListProducts } from '../domain/usecases/list-products'
+import { Attribute } from '../domain/entities/value-objects/attributes'
 
 function errorHandler(reply: Hapi.ResponseToolkit, error: Error | BaseError) {
   console.error(error)
@@ -90,16 +92,24 @@ export const productRoutes: Hapi.ServerRoute[] = [
         query: Joi.object({
           title: Joi.string().optional(),
           brand: Joi.string().optional(),
-          attribute: Joi.object({
-            type: Joi.string().required(),
-            value: Joi.string().required(),
-          }).optional(),
+          'attributes.type': Joi.string().optional(),
+          'attributes.value': Joi.string().optional(),
+          'attributes.label': Joi.string().optional(),
         }),
       },
       handler: async (request, h) => {
         try {
-          const getProductById = makeListProducts()
-          const products = await getProductById.execute(request.query)
+          const listProducts = makeListProducts()
+          const params: ListProducts.Params = {
+            attribute: new Attribute({
+              type: request.query['attributes.type'],
+              value: request.query['attributes.value'],
+              label: request.query['attributes.label'],
+            }),
+            title: request.query.title,
+            brand: request.query.brand,
+          }
+          const products = await listProducts.execute(params)
 
           return h.response(products.map(ProductViewModel.toHttp)).code(200)
         } catch (error) {
