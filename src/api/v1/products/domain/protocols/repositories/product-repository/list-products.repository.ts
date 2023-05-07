@@ -2,11 +2,11 @@ import { Product } from '../../../entities/product.entity'
 
 export interface ListProductsRepository {
   list(
-    filters: FindProductByIdRepository.Params
-  ): Promise<FindProductByIdRepository.Result>
+    filters: ListProductsRepository.Params
+  ): Promise<ListProductsRepository.Result>
 }
 
-export namespace FindProductByIdRepository {
+export namespace ListProductsRepository {
   export type Params = {
     title?: string
     brand?: string

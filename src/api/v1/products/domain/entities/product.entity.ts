@@ -1,5 +1,5 @@
 import { randomUUID } from 'crypto'
-import { Category } from './categories.entity'
+import { Category } from './category.entity'
 import { Attribute } from './value-objects/attributes'
 
 export class Product {
@@ -7,6 +7,8 @@ export class Product {
 
   private constructor(props: ProductProps) {
     props.id = props.id || randomUUID()
+    props.attributes = props.attributes || []
+    props.categories = props.categories || []
     this.props = props
   }
 

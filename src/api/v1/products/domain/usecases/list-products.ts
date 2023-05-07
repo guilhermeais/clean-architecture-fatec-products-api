@@ -1,5 +1,5 @@
 import { Product } from '../entities/product.entity'
-import { ListProductsRepository } from '../protocols/repositories/product-repository/list-products'
+import { ListProductsRepository } from '../protocols/repositories/product-repository/list-products.repository'
 
 export class ListProducts {
   constructor(private readonly productRepository: ListProductsRepository) {}
